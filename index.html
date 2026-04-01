@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Trading OS | ROMAN ANKUDINOV</title>
+    <title>Trading OS | Full-Width Terminal</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="data.js"></script>
@@ -17,20 +17,20 @@
             background-color: var(--bg); 
             color: #f1f5f9; 
             margin: 0; 
+            padding: 0;
             overflow-x: hidden;
         }
 
         /* Кастомный скроллбар */
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
 
         .glass-card { 
             background: var(--card); 
             border: 1px solid rgba(255,255,255,0.05); 
-            border-radius: 16px; 
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-            transition: transform 0.2s;
+            border-radius: 12px; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
         }
 
         .pnl-numbers { font-family: 'JetBrains Mono', monospace; }
@@ -42,98 +42,103 @@
             padding: 8px 12px; 
             border-radius: 8px; 
             font-weight: 700;
+            width: 100%;
         }
 
-        label { color: #94a3b8; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+        label { color: #94a3b8; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; }
 
-        .chart-section { min-height: 450px; padding: 24px; }
+        /* Секции графиков */
+        .chart-section { min-height: 480px; padding: 24px; width: 100%; }
         
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .main-layout { flex-direction: column !important; }
-            .sidebar { width: 100% !important; order: 2; padding: 0 10px; }
+            .sidebar { width: 100% !important; order: 2; padding: 0 20px; }
             .content-area { width: 100% !important; order: 1; }
-            .chart-section { min-height: 350px; padding: 15px; }
         }
     </style>
 </head>
-<body class="p-4 sm:p-6 lg:p-8">
+<body class="p-2 sm:p-4 lg:p-6">
 
-    <header class="max-w-7xl mx-auto w-full flex flex-col md:flex-row justify-between items-center gap-6 mb-8 p-6 glass-card">
-        <div class="text-center md:text-left">
-            <h1 class="text-2xl font-black tracking-tighter text-white uppercase leading-none">ROMAN ANKUDINOV</h1>
-            <p class="text-[10px] text-slate-500 font-bold mt-1 tracking-[0.2em]">QUANTITATIVE ANALYSIS TERMINAL</p>
-            <div class="flex gap-3 mt-4 items-center justify-center md:justify-start bg-black/20 p-2 rounded-lg w-fit">
+    <header class="w-full flex flex-col lg:flex-row justify-between items-center gap-6 mb-6 p-6 glass-card">
+        <div class="flex items-center gap-6 w-full lg:w-auto justify-between lg:justify-start">
+            <div>
+                <h1 class="text-2xl font-black tracking-tighter text-white uppercase leading-none">ROMAN ANKUDINOV</h1>
+                <p class="text-[10px] text-slate-500 font-bold mt-1 tracking-[0.2em]">QUANTITATIVE ANALYSIS TERMINAL</p>
+            </div>
+            <div class="flex gap-3 items-center bg-black/30 p-2 px-4 rounded-lg border border-white/5">
                 <span id="startDate" class="text-xs text-blue-400 font-bold pnl-numbers">-- ---</span>
                 <span class="text-slate-700">/</span>
                 <span id="endDate" class="text-xs text-blue-400 font-bold pnl-numbers">-- ---</span>
             </div>
         </div>
         
-        <div class="flex flex-wrap justify-center gap-6 items-center">
-            <div class="flex flex-col gap-1">
-                <label>Initial Deposit</label>
-                <input type="number" id="depositInput" value="1000" class="pnl-numbers w-32">
+        <div class="flex flex-wrap justify-center lg:justify-end gap-8 items-center w-full lg:w-auto">
+            <div class="flex gap-4">
+                <div class="flex flex-col gap-1 w-32">
+                    <label>Initial Deposit</label>
+                    <input type="number" id="depositInput" value="1000" class="pnl-numbers">
+                </div>
+                <div class="flex flex-col gap-1 w-24">
+                    <label class="text-yellow-500">Risk %</label>
+                    <input type="number" id="riskInput" value="1" step="0.1" class="pnl-numbers text-yellow-500 text-center">
+                </div>
             </div>
-            <div class="flex flex-col gap-1">
-                <label class="text-yellow-500">Risk per R %</label>
-                <input type="number" id="riskInput" value="1" step="0.1" class="pnl-numbers w-20 text-yellow-500 text-center">
-            </div>
-            <div class="h-12 w-[1px] bg-white/10 hidden md:block"></div>
-            <div class="flex gap-8">
+            <div class="h-12 w-[1px] bg-white/10 hidden xl:block"></div>
+            <div class="flex gap-10">
                 <div class="text-right">
                     <p class="text-[10px] text-red-400 uppercase font-bold mb-1">Max Drawdown</p>
                     <p id="maxDD" class="text-2xl font-black text-red-500 pnl-numbers">0%</p>
                 </div>
-                <div class="text-right border-l border-white/10 pl-8">
-                    <p class="text-[10px] text-emerald-400 uppercase font-bold mb-1">Current Balance</p>
+                <div class="text-right border-l border-white/10 pl-10">
+                    <p class="text-[10px] text-emerald-400 uppercase font-bold mb-1">Total Balance</p>
                     <p id="finalBalance" class="text-2xl font-black text-emerald-400 pnl-numbers">$ 0</p>
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 main-layout">
+    <div class="w-full flex flex-col lg:flex-row gap-6 main-layout">
         
-        <aside class="sidebar lg:w-1/4 space-y-4">
-            <h2 class="text-xs font-black text-slate-500 uppercase tracking-widest px-2 flex justify-between items-center">
+        <aside class="sidebar lg:w-[350px] xl:w-[400px] flex-shrink-0 space-y-4">
+            <h2 class="text-xs font-black text-slate-500 uppercase tracking-widest px-2 flex justify-between items-center mb-4">
                 <span>Assets Meta</span>
                 <span class="h-[1px] flex-grow ml-4 bg-white/10"></span>
             </h2>
-            <div id="individual-charts" class="grid grid-cols-2 lg:grid-cols-1 gap-4"></div>
+            <div id="individual-charts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3"></div>
         </aside>
 
-        <main class="content-area lg:w-3/4 space-y-8 pb-12">
+        <main class="content-area flex-grow space-y-6 pb-12">
             
             <section class="glass-card chart-section">
-                <div class="flex justify-between items-end mb-6">
+                <div class="flex justify-between items-center mb-6">
                     <div>
                         <h3 class="text-lg font-black text-white uppercase tracking-tight">Trading Efficiency</h3>
                         <p class="text-xs text-slate-500 uppercase">Cumulative result in R-units</p>
                     </div>
-                    <div id="rTotal" class="pnl-numbers text-blue-400 font-bold text-xl bg-blue-500/10 px-4 py-2 rounded-xl border border-blue-500/20">0 R</div>
+                    <div id="rTotal" class="pnl-numbers text-blue-400 font-bold text-xl bg-blue-500/10 px-6 py-2 rounded-xl border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">0 R</div>
                 </div>
-                <div class="h-[350px] w-full">
+                <div class="h-[400px] w-full">
                     <canvas id="simpleChart"></canvas>
                 </div>
             </section>
 
-            <section class="glass-card chart-section border-t-4 border-t-blue-600">
-                <div class="flex justify-between items-end mb-6">
+            <section class="glass-card chart-section border-t-2 border-t-emerald-600/50">
+                <div class="flex justify-between items-center mb-6">
                     <div>
-                        <h3 class="text-lg font-black text-white uppercase tracking-tight">Equity Growth</h3>
+                        <h3 class="text-lg font-black text-white uppercase tracking-tight text-emerald-400">Equity Growth</h3>
                         <p class="text-xs text-slate-500 uppercase">Compound interest simulation</p>
                     </div>
-                    <div id="roiPct" class="pnl-numbers text-emerald-400 font-bold text-xl bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/20">+0% ROI</div>
+                    <div id="roiPct" class="pnl-numbers text-emerald-400 font-bold text-xl bg-emerald-500/10 px-6 py-2 rounded-xl border border-emerald-500/20">+0% ROI</div>
                 </div>
-                <div class="h-[400px] w-full">
+                <div class="h-[450px] w-full">
                     <canvas id="compoundChart"></canvas>
                 </div>
             </section>
 
-            <section class="glass-card chart-section border-t-4 border-t-slate-700">
+            <section class="glass-card chart-section border-t-2 border-t-slate-700">
                 <div class="mb-6">
                     <h3 class="text-lg font-black text-white uppercase tracking-tight">Monthly Performance</h3>
-                    <p class="text-xs text-slate-500 uppercase">R-distribution by month</p>
+                    <p class="text-xs text-slate-500 uppercase">R-distribution per calendar month</p>
                 </div>
                 <div class="h-[300px] w-full">
                     <canvas id="monthlyChart"></canvas>
@@ -161,11 +166,8 @@
                 const dayR = Object.keys(data).reduce((s, k) => s + (data[k][i] || 0), 0);
                 sumR += dayR; 
                 sData.push(sumR.toFixed(2));
-                
-                // Математика сложного процента: Баланс * (1 + (R за день * Риск))
                 bal = bal * (1 + (dayR * risk)); 
                 cData.push(bal.toFixed(2));
-                
                 if (bal > peak) peak = bal;
                 const dd = ((peak - bal) / peak) * 100;
                 if (dd > mdd) mdd = dd;
@@ -198,7 +200,7 @@
                 maintainAspectRatio: false,
                 plugins: { legend: false },
                 scales: {
-                    x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
+                    x: { grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#64748b', font: { size: 10 } } },
                     y: { position: 'right', grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#94a3b8', font: { size: 11 } } }
                 }
             };
@@ -235,8 +237,15 @@
             const side = document.getElementById('individual-charts');
             Object.keys(data).forEach((k, i) => {
                 const card = document.createElement('div');
-                card.className = 'glass-card p-4 h-24 flex flex-col justify-between';
-                card.innerHTML = `<div class="flex justify-between items-center"><span class="text-[10px] text-white font-black uppercase">${k}</span></div><div class="h-10"><canvas id="s-${k}"></canvas></div>`;
+                card.className = 'glass-card p-4 h-24 flex items-center gap-4 hover:border-white/20 transition-colors';
+                card.innerHTML = `
+                    <div class="flex flex-col min-w-[70px]">
+                        <span class="text-[11px] text-white font-black uppercase tracking-tighter">${k}</span>
+                    </div>
+                    <div class="flex-grow h-12">
+                        <canvas id="s-${k}"></canvas>
+                    </div>
+                `;
                 side.appendChild(card);
                 let s = 0;
                 new Chart(document.getElementById(`s-${k}`), {
