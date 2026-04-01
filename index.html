@@ -9,90 +9,138 @@
     <script src="data.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #020408; color: #f8fafc; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
-        @media (max-width: 768px) {
-            body { overflow-y: auto; }
-            .main-layout { flex-direction: column !important; overflow: visible !important; }
-            .sidebar { width: 100% !important; order: 2; }
-            .content-area { width: 100% !important; order: 1; }
-            header { flex-direction: column; gap: 15px; text-align: center; }
-            .header-stats { flex-wrap: wrap; justify-content: center; gap: 10px; }
-            .chart-box-top, .chart-box-bottom, .chart-box-monthly { height: auto !important; min-height: 300px; }
+        
+        :root { --bg: #020617; --card: #0f172a; --accent: #3b82f6; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            color: #f1f5f9; 
+            margin: 0; 
+            overflow-x: hidden;
         }
+
+        /* Кастомный скроллбар */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+
+        .glass-card { 
+            background: var(--card); 
+            border: 1px solid rgba(255,255,255,0.05); 
+            border-radius: 16px; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s;
+        }
+
         .pnl-numbers { font-family: 'JetBrains Mono', monospace; }
-        .glass-card { background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: flex; flex-direction: column; }
-        input { background: #1e293b; border: 2px solid #334155; color: #ffffff; padding: 6px; border-radius: 6px; outline: none; }
-        label { color: #ffffff !important; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-        .chart-container { flex-grow: 1; min-height: 0; width: 100%; position: relative; }
+        
+        input { 
+            background: #1e293b; 
+            border: 1px solid #334155; 
+            color: #ffffff; 
+            padding: 8px 12px; 
+            border-radius: 8px; 
+            font-weight: 700;
+        }
+
+        label { color: #94a3b8; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .chart-section { min-height: 450px; padding: 24px; }
+        
+        @media (max-width: 768px) {
+            .main-layout { flex-direction: column !important; }
+            .sidebar { width: 100% !important; order: 2; padding: 0 10px; }
+            .content-area { width: 100% !important; order: 1; }
+            .chart-section { min-height: 350px; padding: 15px; }
+        }
     </style>
 </head>
-<body class="p-3 sm:p-4 gap-4">
+<body class="p-4 sm:p-6 lg:p-8">
 
-    <header class="flex justify-between items-center px-4 sm:px-6 bg-[#0f172a] rounded-2xl border border-white/10 py-4 shadow-2xl flex-shrink-0">
-        <div class="flex flex-col items-center sm:items-start">
-            <h1 class="text-xl font-black tracking-tighter text-white uppercase leading-none">ROMAN ANKUDINOV</h1>
-            <div class="flex gap-2 mt-2 items-center">
-                <span id="startDate" class="text-[9px] text-blue-400 font-bold pnl-numbers">-- ---</span>
-                <span class="text-[8px] text-slate-600">>></span>
-                <span id="endDate" class="text-[9px] text-blue-400 font-bold pnl-numbers">-- ---</span>
+    <header class="max-w-7xl mx-auto w-full flex flex-col md:flex-row justify-between items-center gap-6 mb-8 p-6 glass-card">
+        <div class="text-center md:text-left">
+            <h1 class="text-2xl font-black tracking-tighter text-white uppercase leading-none">ROMAN ANKUDINOV</h1>
+            <p class="text-[10px] text-slate-500 font-bold mt-1 tracking-[0.2em]">QUANTITATIVE ANALYSIS TERMINAL</p>
+            <div class="flex gap-3 mt-4 items-center justify-center md:justify-start bg-black/20 p-2 rounded-lg w-fit">
+                <span id="startDate" class="text-xs text-blue-400 font-bold pnl-numbers">-- ---</span>
+                <span class="text-slate-700">/</span>
+                <span id="endDate" class="text-xs text-blue-400 font-bold pnl-numbers">-- ---</span>
             </div>
         </div>
         
-        <div class="header-stats flex gap-4 sm:gap-8 items-center">
+        <div class="flex flex-wrap justify-center gap-6 items-center">
             <div class="flex flex-col gap-1">
-                <label>Deposit</label>
-                <input type="number" id="depositInput" value="1000" class="pnl-numbers font-bold w-24">
+                <label>Initial Deposit</label>
+                <input type="number" id="depositInput" value="1000" class="pnl-numbers w-32">
             </div>
             <div class="flex flex-col gap-1">
-                <label class="text-yellow-400">Risk %</label>
-                <input type="number" id="riskInput" value="1" step="0.1" class="pnl-numbers font-bold w-14 text-yellow-400">
+                <label class="text-yellow-500">Risk per R %</label>
+                <input type="number" id="riskInput" value="1" step="0.1" class="pnl-numbers w-20 text-yellow-500 text-center">
             </div>
-            <div class="hidden sm:block h-10 w-[1px] bg-white/10"></div>
-            <div class="flex gap-4">
+            <div class="h-12 w-[1px] bg-white/10 hidden md:block"></div>
+            <div class="flex gap-8">
                 <div class="text-right">
-                    <p class="text-[9px] text-red-400 uppercase font-bold">Max DD</p>
-                    <p id="maxDD" class="text-lg font-bold text-red-500 pnl-numbers">0%</p>
+                    <p class="text-[10px] text-red-400 uppercase font-bold mb-1">Max Drawdown</p>
+                    <p id="maxDD" class="text-2xl font-black text-red-500 pnl-numbers">0%</p>
                 </div>
-                <div class="text-right border-l border-white/10 pl-4">
-                    <p class="text-[9px] text-white uppercase font-bold">Balance</p>
-                    <p id="finalBalance" class="text-lg font-black text-green-400 pnl-numbers">$ 0</p>
+                <div class="text-right border-l border-white/10 pl-8">
+                    <p class="text-[10px] text-emerald-400 uppercase font-bold mb-1">Current Balance</p>
+                    <p id="finalBalance" class="text-2xl font-black text-emerald-400 pnl-numbers">$ 0</p>
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="main-layout flex-1 flex gap-4 overflow-hidden">
-        <aside class="sidebar w-[20%] flex flex-col gap-3">
-            <h2 class="text-[10px] font-black text-slate-500 uppercase tracking-widest px-2 text-center">Assets Performance</h2>
-            <div id="individual-charts" class="space-y-3 sm:overflow-y-auto pr-2"></div>
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 main-layout">
+        
+        <aside class="sidebar lg:w-1/4 space-y-4">
+            <h2 class="text-xs font-black text-slate-500 uppercase tracking-widest px-2 flex justify-between items-center">
+                <span>Assets Meta</span>
+                <span class="h-[1px] flex-grow ml-4 bg-white/10"></span>
+            </h2>
+            <div id="individual-charts" class="grid grid-cols-2 lg:grid-cols-1 gap-4"></div>
         </aside>
 
-        <div class="content-area w-[80%] flex flex-col gap-4 overflow-y-auto pr-1">
-            <div class="chart-box-top h-[300px] glass-card p-4 flex-shrink-0">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="text-[10px] font-black text-white uppercase">Efficiency (R)</h3>
-                    <div id="rTotal" class="pnl-numbers text-blue-400 font-bold text-sm px-2 py-0.5 bg-blue-500/10 rounded-full">0 R</div>
+        <main class="content-area lg:w-3/4 space-y-8 pb-12">
+            
+            <section class="glass-card chart-section">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h3 class="text-lg font-black text-white uppercase tracking-tight">Trading Efficiency</h3>
+                        <p class="text-xs text-slate-500 uppercase">Cumulative result in R-units</p>
+                    </div>
+                    <div id="rTotal" class="pnl-numbers text-blue-400 font-bold text-xl bg-blue-500/10 px-4 py-2 rounded-xl border border-blue-500/20">0 R</div>
                 </div>
-                <div class="chart-container">
+                <div class="h-[350px] w-full">
                     <canvas id="simpleChart"></canvas>
                 </div>
-            </div>
+            </section>
 
-            <div class="chart-box-bottom h-[350px] glass-card p-4 border-t-2 border-t-blue-500 flex-shrink-0">
-                <h3 class="text-sm font-black text-white uppercase mb-1">Growth ($)</h3>
-                <p id="roiPct" class="text-[10px] font-bold text-blue-400 pnl-numbers mb-2">+0% ROI</p>
-                <div class="chart-container">
+            <section class="glass-card chart-section border-t-4 border-t-blue-600">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h3 class="text-lg font-black text-white uppercase tracking-tight">Equity Growth</h3>
+                        <p class="text-xs text-slate-500 uppercase">Compound interest simulation</p>
+                    </div>
+                    <div id="roiPct" class="pnl-numbers text-emerald-400 font-bold text-xl bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/20">+0% ROI</div>
+                </div>
+                <div class="h-[400px] w-full">
                     <canvas id="compoundChart"></canvas>
                 </div>
-            </div>
+            </section>
 
-            <div class="chart-box-monthly h-[300px] glass-card p-4 border-t-2 border-t-emerald-500 flex-shrink-0 mb-4">
-                <h3 class="text-sm font-black text-white uppercase mb-4 text-emerald-400">Monthly Performance (R)</h3>
-                <div class="chart-container">
+            <section class="glass-card chart-section border-t-4 border-t-slate-700">
+                <div class="mb-6">
+                    <h3 class="text-lg font-black text-white uppercase tracking-tight">Monthly Performance</h3>
+                    <p class="text-xs text-slate-500 uppercase">R-distribution by month</p>
+                </div>
+                <div class="h-[300px] w-full">
                     <canvas id="monthlyChart"></canvas>
                 </div>
-            </div>
-        </div>
+            </section>
+
+        </main>
     </div>
 
     <script>
@@ -107,37 +155,33 @@
             const risk = (parseFloat(document.getElementById('riskInput').value) || 0) / 100;
             let sumR = 0, bal = dep, peak = dep, mdd = 0;
             const sData = [], cData = [];
-            
-            // Для месячного графика
             const monthlyStats = {};
 
             labels.forEach((label, i) => {
                 const dayR = Object.keys(data).reduce((s, k) => s + (data[k][i] || 0), 0);
-                
-                // Считаем общую статику
                 sumR += dayR; 
                 sData.push(sumR.toFixed(2));
+                
+                // Математика сложного процента: Баланс * (1 + (R за день * Риск))
                 bal = bal * (1 + (dayR * risk)); 
                 cData.push(bal.toFixed(2));
+                
                 if (bal > peak) peak = bal;
                 const dd = ((peak - bal) / peak) * 100;
                 if (dd > mdd) mdd = dd;
 
-                // Группируем по месяцам (из строки "15 mar 26" берем "mar 26")
                 const parts = label.split(' ');
                 const monthKey = parts[1] + ' ' + parts[2];
                 monthlyStats[monthKey] = (monthlyStats[monthKey] || 0) + dayR;
             });
 
             document.getElementById('finalBalance').innerText = '$ ' + Math.round(bal).toLocaleString();
-            document.getElementById('roiPct').innerText = '+' + Math.round(((bal-dep)/dep)*100).toLocaleString() + '% TOTAL ROI';
+            document.getElementById('roiPct').innerText = '+' + Math.round(((bal-dep)/dep)*100).toLocaleString() + '% ROI';
             document.getElementById('maxDD').innerText = Math.round(mdd) + '%';
             document.getElementById('rTotal').innerText = sumR.toFixed(1) + ' R';
             
             chartS.data.datasets[0].data = sData; 
             chartC.data.datasets[0].data = cData;
-            
-            // Обновляем месячный график
             chartM.data.labels = Object.keys(monthlyStats);
             chartM.data.datasets[0].data = Object.values(monthlyStats);
             chartM.data.datasets[0].backgroundColor = Object.values(monthlyStats).map(v => v >= 0 ? '#10b981' : '#ef4444');
@@ -148,43 +192,60 @@
         function init() {
             document.getElementById('startDate').innerText = labels[0].toUpperCase();
             document.getElementById('endDate').innerText = labels[labels.length-1].toUpperCase();
-            const axis = { position: 'right', ticks: { color: '#ffffff', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } };
+            
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: false },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
+                    y: { position: 'right', grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#94a3b8', font: { size: 11 } } }
+                }
+            };
 
             chartS = new Chart(document.getElementById('simpleChart'), {
-                type: 'line', data: { labels: labels, datasets: [{ borderColor: '#60a5fa', borderWidth: 2, pointRadius: 0, data: [] }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: false }, scales: { x: { display: false }, y: axis } }
+                type: 'line', 
+                data: { labels: labels, datasets: [{ borderColor: '#3b82f6', borderWidth: 3, pointRadius: 0, tension: 0.1, data: [] }] },
+                options: commonOptions
             });
 
             chartC = new Chart(document.getElementById('compoundChart'), {
-                type: 'line', data: { labels: labels, datasets: [{ borderColor: '#ffffff', borderWidth: 2, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.05)', pointRadius: 0, data: [] }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: false }, scales: { x: { ticks: { display: false } }, y: axis } }
+                type: 'line', 
+                data: { 
+                    labels: labels, 
+                    datasets: [{ 
+                        borderColor: '#10b981', 
+                        borderWidth: 3, 
+                        fill: true, 
+                        backgroundColor: 'rgba(16, 185, 129, 0.05)', 
+                        pointRadius: 0, 
+                        tension: 0.1,
+                        data: [] 
+                    }] 
+                },
+                options: commonOptions
             });
 
             chartM = new Chart(document.getElementById('monthlyChart'), {
                 type: 'bar',
-                data: { labels: [], datasets: [{ data: [], borderRadius: 4 }] },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: false },
-                    scales: { 
-                        x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } },
-                        y: { position: 'right', ticks: { color: '#ffffff' }, grid: { color: 'rgba(255,255,255,0.05)' } }
-                    }
-                }
+                data: { labels: [], datasets: [{ data: [], borderRadius: 6 }] },
+                options: { ...commonOptions, scales: { ...commonOptions.scales, x: { display: true, ticks: { color: '#94a3b8' } } } }
             });
 
             const side = document.getElementById('individual-charts');
             Object.keys(data).forEach((k, i) => {
                 const card = document.createElement('div');
-                card.className = 'glass-card p-2 h-20 flex-shrink-0';
-                card.innerHTML = `<span class="text-[8px] text-white uppercase font-bold">${k}</span><canvas id="s-${k}"></canvas>`;
+                card.className = 'glass-card p-4 h-24 flex flex-col justify-between';
+                card.innerHTML = `<div class="flex justify-between items-center"><span class="text-[10px] text-white font-black uppercase">${k}</span></div><div class="h-10"><canvas id="s-${k}"></canvas></div>`;
                 side.appendChild(card);
                 let s = 0;
                 new Chart(document.getElementById(`s-${k}`), {
-                    type: 'line', data: { labels: labels, datasets: [{ data: data[k].map(v => s+=v), borderColor: colors[i % colors.length], borderWidth: 1.5, pointRadius: 0 }] },
+                    type: 'line', 
+                    data: { labels: labels, datasets: [{ data: data[k].map(v => s+=v), borderColor: colors[i % colors.length], borderWidth: 2, pointRadius: 0, tension: 0.3 }] },
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: false }, scales: { x: { display: false }, y: { display: false } } }
                 });
             });
+            
             update();
             ['depositInput', 'riskInput'].forEach(id => document.getElementById(id).addEventListener('input', update));
         }
