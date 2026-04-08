@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Trading OS | Full-Width Terminal</title>
+    <title>Trading OS | ROMAN ANKUDINOV</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="data.js"></script>
@@ -16,12 +16,10 @@
             font-family: 'Inter', sans-serif; 
             background-color: var(--bg); 
             color: #f1f5f9; 
-            margin: 0; 
-            padding: 0;
+            margin: 0; padding: 0;
             overflow-x: hidden;
         }
 
-        /* Кастомный скроллбар */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
@@ -46,13 +44,11 @@
         }
 
         label { color: #94a3b8; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; }
-
-        /* Секции графиков */
         .chart-section { min-height: 480px; padding: 24px; width: 100%; }
         
         @media (max-width: 1024px) {
             .main-layout { flex-direction: column !important; }
-            .sidebar { width: 100% !important; order: 2; padding: 0 20px; }
+            .sidebar { width: 100% !important; order: 2; padding: 0 10px; }
             .content-area { width: 100% !important; order: 1; }
         }
     </style>
@@ -115,11 +111,9 @@
                         <h3 class="text-lg font-black text-white uppercase tracking-tight">Trading Efficiency</h3>
                         <p class="text-xs text-slate-500 uppercase">Cumulative result in R-units</p>
                     </div>
-                    <div id="rTotal" class="pnl-numbers text-blue-400 font-bold text-xl bg-blue-500/10 px-6 py-2 rounded-xl border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">0 R</div>
+                    <div id="rTotal" class="pnl-numbers text-blue-400 font-bold text-xl bg-blue-500/10 px-6 py-2 rounded-xl border border-blue-500/20">0 R</div>
                 </div>
-                <div class="h-[400px] w-full">
-                    <canvas id="simpleChart"></canvas>
-                </div>
+                <div class="h-[400px] w-full"><canvas id="simpleChart"></canvas></div>
             </section>
 
             <section class="glass-card chart-section border-t-2 border-t-emerald-600/50">
@@ -130,19 +124,15 @@
                     </div>
                     <div id="roiPct" class="pnl-numbers text-emerald-400 font-bold text-xl bg-emerald-500/10 px-6 py-2 rounded-xl border border-emerald-500/20">+0% ROI</div>
                 </div>
-                <div class="h-[450px] w-full">
-                    <canvas id="compoundChart"></canvas>
-                </div>
+                <div class="h-[450px] w-full"><canvas id="compoundChart"></canvas></div>
             </section>
 
             <section class="glass-card chart-section border-t-2 border-t-slate-700">
                 <div class="mb-6">
                     <h3 class="text-lg font-black text-white uppercase tracking-tight">Monthly Performance</h3>
-                    <p class="text-xs text-slate-500 uppercase">R-distribution per calendar month</p>
+                    <p class="text-xs text-slate-500 uppercase">Net Profit in % (Monthly)</p>
                 </div>
-                <div class="h-[300px] w-full">
-                    <canvas id="monthlyChart"></canvas>
-                </div>
+                <div class="h-[300px] w-full"><canvas id="monthlyChart"></canvas></div>
             </section>
 
         </main>
@@ -151,7 +141,7 @@
     <script>
         const rawDates = window.tradingData.dates;
         const data = window.tradingData.assets;
-        const labels = rawDates.map(l => l + (['jan', 'feb', 'mar'].includes(l.split(' ')[1]) ? ' 26' : ' 25'));
+        const labels = rawDates.map(l => l + (['jan', 'feb', 'mar', 'apr'].includes(l.split(' ')[1]) ? ' 26' : ' 25'));
         const colors = ['#60a5fa', '#34d399', '#fbbf24', '#f87171', '#a78bfa', '#f472b6', '#22d3ee', '#fb923c', '#c084fc', '#2dd4bf', '#818cf8', '#f472b6'];
         let chartS, chartC, chartM;
 
@@ -163,18 +153,27 @@
             const monthlyStats = {};
 
             labels.forEach((label, i) => {
-                const dayR = Object.keys(data).reduce((s, k) => s + (data[k][i] || 0), 0);
+                let dayR = 0;
+                Object.keys(data).forEach(asset => {
+                    const val = data[asset][i];
+                    if (typeof val === 'number') dayR += val;
+                });
+
                 sumR += dayR; 
                 sData.push(sumR.toFixed(2));
+                
+                // Расчет баланса (Сложный процент)
                 bal = bal * (1 + (dayR * risk)); 
                 cData.push(bal.toFixed(2));
+                
                 if (bal > peak) peak = bal;
                 const dd = ((peak - bal) / peak) * 100;
                 if (dd > mdd) mdd = dd;
 
                 const parts = label.split(' ');
                 const monthKey = parts[1] + ' ' + parts[2];
-                monthlyStats[monthKey] = (monthlyStats[monthKey] || 0) + dayR;
+                // Накапливаем процент доходности за месяц
+                monthlyStats[monthKey] = (monthlyStats[monthKey] || 0) + (dayR * risk * 100);
             });
 
             document.getElementById('finalBalance').innerText = '$ ' + Math.round(bal).toLocaleString();
@@ -185,7 +184,7 @@
             chartS.data.datasets[0].data = sData; 
             chartC.data.datasets[0].data = cData;
             chartM.data.labels = Object.keys(monthlyStats);
-            chartM.data.datasets[0].data = Object.values(monthlyStats);
+            chartM.data.datasets[0].data = Object.values(monthlyStats).map(v => v.toFixed(1));
             chartM.data.datasets[0].backgroundColor = Object.values(monthlyStats).map(v => v >= 0 ? '#10b981' : '#ef4444');
 
             chartS.update(); chartC.update(); chartM.update();
@@ -231,21 +230,14 @@
             chartM = new Chart(document.getElementById('monthlyChart'), {
                 type: 'bar',
                 data: { labels: [], datasets: [{ data: [], borderRadius: 6 }] },
-                options: { ...commonOptions, scales: { ...commonOptions.scales, x: { display: true, ticks: { color: '#94a3b8' } } } }
+                options: { ...commonOptions, plugins: { legend: false }, scales: { x: { display: true, ticks: { color: '#94a3b8' } }, y: { position: 'right', ticks: { callback: v => v + '%' } } } }
             });
 
             const side = document.getElementById('individual-charts');
             Object.keys(data).forEach((k, i) => {
                 const card = document.createElement('div');
-                card.className = 'glass-card p-4 h-24 flex items-center gap-4 hover:border-white/20 transition-colors';
-                card.innerHTML = `
-                    <div class="flex flex-col min-w-[70px]">
-                        <span class="text-[11px] text-white font-black uppercase tracking-tighter">${k}</span>
-                    </div>
-                    <div class="flex-grow h-12">
-                        <canvas id="s-${k}"></canvas>
-                    </div>
-                `;
+                card.className = 'glass-card p-4 h-24 flex items-center gap-4 hover:border-white/20 transition-colors cursor-default';
+                card.innerHTML = `<div class="flex flex-col min-w-[70px]"><span class="text-[11px] text-white font-black uppercase tracking-tighter">${k}</span></div><div class="flex-grow h-12"><canvas id="s-${k}"></canvas></div>`;
                 side.appendChild(card);
                 let s = 0;
                 new Chart(document.getElementById(`s-${k}`), {
