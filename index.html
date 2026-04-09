@@ -20,31 +20,51 @@
             overflow-x: hidden;
         }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-
         .glass-card { 
             background: var(--card); 
             border: 1px solid rgba(255,255,255,0.05); 
             border-radius: 12px; 
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            overflow: hidden; /* Важно для обрезки вылетающих графиков */
+            overflow: hidden;
         }
 
         .pnl-numbers { font-family: 'JetBrains Mono', monospace; }
         
+        /* Единый стиль для инпутов */
         input { 
             background: #1e293b; 
             border: 1px solid #334155; 
             color: #ffffff; 
-            padding: 8px 12px; 
+            padding: 0 12px; 
             border-radius: 8px; 
             font-weight: 700;
             width: 100%;
+            height: 42px; /* Фиксированная высота для обоих окон */
+            outline: none;
+            transition: border-color 0.2s;
         }
 
-        label { color: #94a3b8; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; }
+        input:focus {
+            border-color: var(--accent);
+        }
+
+        /* Убираем стрелочки выбора числа, чтобы не раздували блоки */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        label { 
+            color: #94a3b8; 
+            font-size: 10px; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
+            display: block;
+        }
+
         .chart-section { min-height: 480px; padding: 24px; width: 100%; }
         
         @media (max-width: 1024px) {
@@ -70,17 +90,19 @@
         </div>
         
         <div class="flex flex-wrap justify-center lg:justify-end gap-8 items-center w-full lg:w-auto">
-            <div class="flex gap-4">
-                <div class="flex flex-col gap-1 w-32">
+            <div class="flex gap-4 items-end">
+                <div class="flex flex-col w-32">
                     <label>Начальный Депозит</label>
                     <input type="number" id="depositInput" value="1000" class="pnl-numbers">
                 </div>
-                <div class="flex flex-col gap-1 w-24">
+                <div class="flex flex-col w-24">
                     <label class="text-yellow-500">Риск %</label>
                     <input type="number" id="riskInput" value="1" step="0.1" class="pnl-numbers text-yellow-500 text-center">
                 </div>
             </div>
+            
             <div class="h-12 w-[1px] bg-white/10 hidden xl:block"></div>
+            
             <div class="flex gap-10">
                 <div class="text-right">
                     <p class="text-[10px] text-red-400 uppercase font-bold mb-1">Max Drawdown</p>
@@ -143,7 +165,6 @@
         const rawDates = window.tradingData.dates;
         const data = window.tradingData.assets;
         
-        // Автоматическое определение года для корректной сортировки в будущем
         const labels = rawDates.map(l => {
             const year = ['jan', 'feb', 'mar', 'apr'].includes(l.split(' ')[1]) ? ' 26' : ' 25';
             return l + year;
@@ -163,13 +184,11 @@
                 let dayR = 0;
                 Object.keys(data).forEach(asset => {
                     const val = data[asset][i];
-                    if (typeof val === 'number') dayR += val;
+                    if (typeof val === 'number' && !isNaN(val)) dayR += val;
                 });
 
                 sumR += dayR; 
                 sData.push(sumR.toFixed(2));
-                
-                // Сложный процент
                 bal = bal * (1 + (dayR * risk)); 
                 cData.push(bal.toFixed(2));
                 
@@ -177,7 +196,6 @@
                 const dd = ((peak - bal) / peak) * 100;
                 if (dd > mdd) mdd = dd;
 
-                // Группировка для гистограммы
                 const parts = label.split(' ');
                 const monthKey = parts[1] + ' ' + parts[2];
                 monthlyStats[monthKey] = (monthlyStats[monthKey] || 0) + (dayR * risk * 100);
@@ -190,11 +208,9 @@
             
             chartS.data.datasets[0].data = sData; 
             chartC.data.datasets[0].data = cData;
-            
             chartM.data.labels = Object.keys(monthlyStats);
             chartM.data.datasets[0].data = Object.values(monthlyStats).map(v => v.toFixed(1));
             chartM.data.datasets[0].backgroundColor = Object.values(monthlyStats).map(v => v >= 0 ? '#10b981' : '#ef4444');
-
             chartS.update(); chartC.update(); chartM.update();
         }
 
@@ -212,7 +228,6 @@
                 }
             };
 
-            // Основные графики
             chartS = new Chart(document.getElementById('simpleChart'), {
                 type: 'line', 
                 data: { labels: labels, datasets: [{ borderColor: '#3b82f6', borderWidth: 3, pointRadius: 0, tension: 0.1, data: [] }] },
@@ -221,65 +236,33 @@
 
             chartC = new Chart(document.getElementById('compoundChart'), {
                 type: 'line', 
-                data: { 
-                    labels: labels, 
-                    datasets: [{ 
-                        borderColor: '#10b981', 
-                        borderWidth: 3, 
-                        fill: true, 
-                        backgroundColor: 'rgba(16, 185, 129, 0.05)', 
-                        pointRadius: 0, 
-                        tension: 0.1,
-                        data: [] 
-                    }] 
-                },
+                data: { labels: labels, datasets: [{ borderColor: '#10b981', borderWidth: 3, fill: true, backgroundColor: 'rgba(16, 185, 129, 0.05)', pointRadius: 0, tension: 0.1, data: [] }] },
                 options: commonOptions
             });
 
             chartM = new Chart(document.getElementById('monthlyChart'), {
                 type: 'bar',
                 data: { labels: [], datasets: [{ data: [], borderRadius: 6 }] },
-                options: { 
-                    ...commonOptions, 
-                    scales: { 
-                        x: { ticks: { color: '#94a3b8' } }, 
-                        y: { position: 'right', ticks: { callback: v => v + '%' } } 
-                    } 
-                }
+                options: { ...commonOptions, scales: { x: { ticks: { color: '#94a3b8' } }, y: { position: 'right', ticks: { callback: v => v + '%' } } } }
             });
 
-            // БОКОВАЯ ПАНЕЛЬ (Assets Meta) с исправлением вылета за границы
             const side = document.getElementById('individual-charts');
             Object.keys(data).forEach((k, i) => {
                 const card = document.createElement('div');
-                card.className = 'glass-card p-4 h-24 flex items-center gap-4 hover:border-white/20 transition-colors cursor-default';
+                card.className = 'glass-card p-4 h-24 flex items-center gap-4 hover:border-white/20 transition-colors cursor-default overflow-hidden';
                 card.innerHTML = `<div class="flex flex-col min-w-[70px]"><span class="text-[11px] text-white font-black uppercase tracking-tighter">${k}</span></div><div class="flex-grow h-12 relative"><canvas id="s-${k}"></canvas></div>`;
                 side.appendChild(card);
-                
                 let s = 0;
                 new Chart(document.getElementById(`s-${k}`), {
                     type: 'line', 
-                    data: { 
-                        labels: labels, 
-                        datasets: [{ 
-                            data: data[k].map(v => s+=v), 
-                            borderColor: colors[i % colors.length], 
-                            borderWidth: 2, 
-                            pointRadius: 0, 
-                            tension: 0.3,
-                            clip: 5 // Фикс: не дает линии выходить за пределы холста
-                        }] 
-                    },
+                    data: { labels: labels, datasets: [{ data: data[k].map(v => s+=v), borderColor: colors[i % colors.length], borderWidth: 2, pointRadius: 0, tension: 0.3, clip: 5 }] },
                     options: { 
-                        responsive: true, 
-                        maintainAspectRatio: false, 
-                        plugins: { legend: false },
-                        layout: { padding: { right: 5, left: 2, top: 5, bottom: 5 } }, // Внутренний отступ холста
+                        responsive: true, maintainAspectRatio: false, plugins: { legend: false },
+                        layout: { padding: { right: 5, left: 2, top: 5, bottom: 5 } },
                         scales: { x: { display: false }, y: { display: false } } 
                     }
                 });
             });
-            
             update();
             ['depositInput', 'riskInput'].forEach(id => document.getElementById(id).addEventListener('input', update));
         }
