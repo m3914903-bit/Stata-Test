@@ -30,7 +30,6 @@
 
         .pnl-numbers { font-family: 'JetBrains Mono', monospace; }
         
-        /* Единый стиль для инпутов */
         input { 
             background: #1e293b; 
             border: 1px solid #334155; 
@@ -39,38 +38,42 @@
             border-radius: 8px; 
             font-weight: 700;
             width: 100%;
-            height: 42px; /* Фиксированная высота для обоих окон */
+            height: 42px;
             outline: none;
-            transition: border-color 0.2s;
         }
 
-        input:focus {
-            border-color: var(--accent);
-        }
-
-        /* Убираем стрелочки выбора числа, чтобы не раздували блоки */
         input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
+        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
         label { 
-            color: #94a3b8; 
-            font-size: 10px; 
-            font-weight: 800; 
-            text-transform: uppercase; 
-            letter-spacing: 0.1em;
-            margin-bottom: 4px;
-            display: block;
+            color: #94a3b8; font-size: 10px; font-weight: 800; 
+            text-transform: uppercase; letter-spacing: 0.1em;
+            margin-bottom: 4px; display: block;
         }
 
-        .chart-section { min-height: 480px; padding: 24px; width: 100%; }
+        .chart-section { padding: 24px; width: 100%; }
         
-        @media (max-width: 1024px) {
-            .main-layout { flex-direction: column !important; }
-            .sidebar { width: 100% !important; order: 2; padding: 0 10px; }
-            .content-area { width: 100% !important; order: 1; }
+        /* Кастомная сетка для выравнивания краев */
+        @media (min-width: 1024px) {
+            .main-layout {
+                display: flex;
+                align-items: stretch; /* Растягивает лево и право до одной высоты */
+                gap: 24px;
+            }
+            .sidebar {
+                width: 25%; /* Левая панель шире */
+                display: flex;
+                flex-direction: column;
+            }
+            .content-area {
+                width: 75%;
+            }
+            #individual-charts {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between; /* Распределяет карточки по всей высоте */
+                height: 100%;
+            }
         }
     </style>
 </head>
@@ -100,9 +103,7 @@
                     <input type="number" id="riskInput" value="1" step="0.1" class="pnl-numbers text-yellow-500 text-center">
                 </div>
             </div>
-            
             <div class="h-12 w-[1px] bg-white/10 hidden xl:block"></div>
-            
             <div class="flex gap-10">
                 <div class="text-right">
                     <p class="text-[10px] text-red-400 uppercase font-bold mb-1">Max Drawdown</p>
@@ -116,18 +117,18 @@
         </div>
     </header>
 
-    <div class="w-full flex flex-col lg:flex-row gap-6 main-layout">
+    <div class="main-layout w-full">
         
-        <aside class="sidebar lg:w-[350px] xl:w-[400px] flex-shrink-0 space-y-4">
-            <h2 class="text-xs font-black text-slate-500 uppercase tracking-widest px-2 flex justify-between items-center mb-4">
+        <aside class="sidebar space-y-4">
+            <h2 class="text-xs font-black text-slate-500 uppercase tracking-widest px-2 flex justify-between items-center">
                 <span>Assets Meta</span>
                 <span class="h-[1px] flex-grow ml-4 bg-white/10"></span>
             </h2>
-            <div id="individual-charts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3"></div>
+            <div id="individual-charts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 flex-grow">
+                </div>
         </aside>
 
-        <main class="content-area flex-grow space-y-6 pb-12">
-            
+        <main class="content-area space-y-6">
             <section class="glass-card chart-section">
                 <div class="flex justify-between items-center mb-6">
                     <div>
@@ -136,7 +137,7 @@
                     </div>
                     <div id="rTotal" class="pnl-numbers text-blue-400 font-bold text-xl bg-blue-500/10 px-6 py-2 rounded-xl border border-blue-500/20">0 R</div>
                 </div>
-                <div class="h-[400px] w-full"><canvas id="simpleChart"></canvas></div>
+                <div class="h-[380px] w-full"><canvas id="simpleChart"></canvas></div>
             </section>
 
             <section class="glass-card chart-section border-t-2 border-t-emerald-600/50">
@@ -147,7 +148,7 @@
                     </div>
                     <div id="roiPct" class="pnl-numbers text-emerald-400 font-bold text-xl bg-emerald-500/10 px-6 py-2 rounded-xl border border-emerald-500/20">+0% ROI</div>
                 </div>
-                <div class="h-[450px] w-full"><canvas id="compoundChart"></canvas></div>
+                <div class="h-[380px] w-full"><canvas id="compoundChart"></canvas></div>
             </section>
 
             <section class="glass-card chart-section border-t-2 border-t-slate-700">
@@ -157,7 +158,6 @@
                 </div>
                 <div class="h-[300px] w-full"><canvas id="monthlyChart"></canvas></div>
             </section>
-
         </main>
     </div>
 
@@ -186,16 +186,13 @@
                     const val = data[asset][i];
                     if (typeof val === 'number' && !isNaN(val)) dayR += val;
                 });
-
                 sumR += dayR; 
                 sData.push(sumR.toFixed(2));
                 bal = bal * (1 + (dayR * risk)); 
                 cData.push(bal.toFixed(2));
-                
                 if (bal > peak) peak = bal;
                 const dd = ((peak - bal) / peak) * 100;
                 if (dd > mdd) mdd = dd;
-
                 const parts = label.split(' ');
                 const monthKey = parts[1] + ' ' + parts[2];
                 monthlyStats[monthKey] = (monthlyStats[monthKey] || 0) + (dayR * risk * 100);
@@ -219,8 +216,7 @@
             document.getElementById('endDate').innerText = labels[labels.length-1].toUpperCase();
             
             const commonOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: { legend: false },
                 scales: {
                     x: { grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#64748b', font: { size: 10 } } },
@@ -229,28 +225,26 @@
             };
 
             chartS = new Chart(document.getElementById('simpleChart'), {
-                type: 'line', 
-                data: { labels: labels, datasets: [{ borderColor: '#3b82f6', borderWidth: 3, pointRadius: 0, tension: 0.1, data: [] }] },
+                type: 'line', data: { labels: labels, datasets: [{ borderColor: '#3b82f6', borderWidth: 3, pointRadius: 0, tension: 0.1, data: [] }] },
                 options: commonOptions
             });
 
             chartC = new Chart(document.getElementById('compoundChart'), {
-                type: 'line', 
-                data: { labels: labels, datasets: [{ borderColor: '#10b981', borderWidth: 3, fill: true, backgroundColor: 'rgba(16, 185, 129, 0.05)', pointRadius: 0, tension: 0.1, data: [] }] },
+                type: 'line', data: { labels: labels, datasets: [{ borderColor: '#10b981', borderWidth: 3, fill: true, backgroundColor: 'rgba(16, 185, 129, 0.05)', pointRadius: 0, tension: 0.1, data: [] }] },
                 options: commonOptions
             });
 
             chartM = new Chart(document.getElementById('monthlyChart'), {
-                type: 'bar',
-                data: { labels: [], datasets: [{ data: [], borderRadius: 6 }] },
+                type: 'bar', data: { labels: [], datasets: [{ data: [], borderRadius: 6 }] },
                 options: { ...commonOptions, scales: { x: { ticks: { color: '#94a3b8' } }, y: { position: 'right', ticks: { callback: v => v + '%' } } } }
             });
 
             const side = document.getElementById('individual-charts');
             Object.keys(data).forEach((k, i) => {
                 const card = document.createElement('div');
-                card.className = 'glass-card p-4 h-24 flex items-center gap-4 hover:border-white/20 transition-colors cursor-default overflow-hidden';
-                card.innerHTML = `<div class="flex flex-col min-w-[70px]"><span class="text-[11px] text-white font-black uppercase tracking-tighter">${k}</span></div><div class="flex-grow h-12 relative"><canvas id="s-${k}"></canvas></div>`;
+                // Карточки теперь имеют flex-grow для равномерного заполнения высоты
+                card.className = 'glass-card p-3 flex-grow flex items-center gap-4 hover:border-white/20 transition-colors cursor-default overflow-hidden';
+                card.innerHTML = `<div class="flex flex-col min-w-[60px]"><span class="text-[10px] text-white font-black uppercase tracking-tighter">${k}</span></div><div class="flex-grow h-full relative min-h-[40px]"><canvas id="s-${k}"></canvas></div>`;
                 side.appendChild(card);
                 let s = 0;
                 new Chart(document.getElementById(`s-${k}`), {
