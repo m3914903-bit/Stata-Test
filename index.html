@@ -29,6 +29,7 @@
             border: 1px solid rgba(255,255,255,0.05); 
             border-radius: 12px; 
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            overflow: hidden; /* Важно для обрезки вылетающих графиков */
         }
 
         .pnl-numbers { font-family: 'JetBrains Mono', monospace; }
@@ -71,11 +72,11 @@
         <div class="flex flex-wrap justify-center lg:justify-end gap-8 items-center w-full lg:w-auto">
             <div class="flex gap-4">
                 <div class="flex flex-col gap-1 w-32">
-                    <label>Initial Deposit</label>
+                    <label>Начальный Депозит</label>
                     <input type="number" id="depositInput" value="1000" class="pnl-numbers">
                 </div>
                 <div class="flex flex-col gap-1 w-24">
-                    <label class="text-yellow-500">Risk %</label>
+                    <label class="text-yellow-500">Риск %</label>
                     <input type="number" id="riskInput" value="1" step="0.1" class="pnl-numbers text-yellow-500 text-center">
                 </div>
             </div>
@@ -86,7 +87,7 @@
                     <p id="maxDD" class="text-2xl font-black text-red-500 pnl-numbers">0%</p>
                 </div>
                 <div class="text-right border-l border-white/10 pl-10">
-                    <p class="text-[10px] text-emerald-400 uppercase font-bold mb-1">Total Balance</p>
+                    <p class="text-[10px] text-emerald-400 uppercase font-bold mb-1">Final Balance</p>
                     <p id="finalBalance" class="text-2xl font-black text-emerald-400 pnl-numbers">$ 0</p>
                 </div>
             </div>
@@ -108,8 +109,8 @@
             <section class="glass-card chart-section">
                 <div class="flex justify-between items-center mb-6">
                     <div>
-                        <h3 class="text-lg font-black text-white uppercase tracking-tight">Trading Efficiency</h3>
-                        <p class="text-xs text-slate-500 uppercase">Cumulative result in R-units</p>
+                        <h3 class="text-lg font-black text-white uppercase tracking-tight">Efficiency (R)</h3>
+                        <p class="text-xs text-slate-500 uppercase">Суммарный результат в единицах риска</p>
                     </div>
                     <div id="rTotal" class="pnl-numbers text-blue-400 font-bold text-xl bg-blue-500/10 px-6 py-2 rounded-xl border border-blue-500/20">0 R</div>
                 </div>
@@ -119,8 +120,8 @@
             <section class="glass-card chart-section border-t-2 border-t-emerald-600/50">
                 <div class="flex justify-between items-center mb-6">
                     <div>
-                        <h3 class="text-lg font-black text-white uppercase tracking-tight text-emerald-400">Equity Growth</h3>
-                        <p class="text-xs text-slate-500 uppercase">Compound interest simulation</p>
+                        <h3 class="text-lg font-black text-white uppercase tracking-tight text-emerald-400">Growth ($)</h3>
+                        <p class="text-xs text-slate-500 uppercase">Модель сложного процента</p>
                     </div>
                     <div id="roiPct" class="pnl-numbers text-emerald-400 font-bold text-xl bg-emerald-500/10 px-6 py-2 rounded-xl border border-emerald-500/20">+0% ROI</div>
                 </div>
@@ -129,8 +130,8 @@
 
             <section class="glass-card chart-section border-t-2 border-t-slate-700">
                 <div class="mb-6">
-                    <h3 class="text-lg font-black text-white uppercase tracking-tight">Monthly Performance</h3>
-                    <p class="text-xs text-slate-500 uppercase">Net Profit in % (Monthly)</p>
+                    <h3 class="text-lg font-black text-white uppercase tracking-tight">Monthly Profitability</h3>
+                    <p class="text-xs text-slate-500 uppercase">Доходность в % по месяцам</p>
                 </div>
                 <div class="h-[300px] w-full"><canvas id="monthlyChart"></canvas></div>
             </section>
@@ -141,7 +142,13 @@
     <script>
         const rawDates = window.tradingData.dates;
         const data = window.tradingData.assets;
-        const labels = rawDates.map(l => l + (['jan', 'feb', 'mar', 'apr'].includes(l.split(' ')[1]) ? ' 26' : ' 25'));
+        
+        // Автоматическое определение года для корректной сортировки в будущем
+        const labels = rawDates.map(l => {
+            const year = ['jan', 'feb', 'mar', 'apr'].includes(l.split(' ')[1]) ? ' 26' : ' 25';
+            return l + year;
+        });
+
         const colors = ['#60a5fa', '#34d399', '#fbbf24', '#f87171', '#a78bfa', '#f472b6', '#22d3ee', '#fb923c', '#c084fc', '#2dd4bf', '#818cf8', '#f472b6'];
         let chartS, chartC, chartM;
 
@@ -162,7 +169,7 @@
                 sumR += dayR; 
                 sData.push(sumR.toFixed(2));
                 
-                // Расчет баланса (Сложный процент)
+                // Сложный процент
                 bal = bal * (1 + (dayR * risk)); 
                 cData.push(bal.toFixed(2));
                 
@@ -170,9 +177,9 @@
                 const dd = ((peak - bal) / peak) * 100;
                 if (dd > mdd) mdd = dd;
 
+                // Группировка для гистограммы
                 const parts = label.split(' ');
                 const monthKey = parts[1] + ' ' + parts[2];
-                // Накапливаем процент доходности за месяц
                 monthlyStats[monthKey] = (monthlyStats[monthKey] || 0) + (dayR * risk * 100);
             });
 
@@ -183,6 +190,7 @@
             
             chartS.data.datasets[0].data = sData; 
             chartC.data.datasets[0].data = cData;
+            
             chartM.data.labels = Object.keys(monthlyStats);
             chartM.data.datasets[0].data = Object.values(monthlyStats).map(v => v.toFixed(1));
             chartM.data.datasets[0].backgroundColor = Object.values(monthlyStats).map(v => v >= 0 ? '#10b981' : '#ef4444');
@@ -204,6 +212,7 @@
                 }
             };
 
+            // Основные графики
             chartS = new Chart(document.getElementById('simpleChart'), {
                 type: 'line', 
                 data: { labels: labels, datasets: [{ borderColor: '#3b82f6', borderWidth: 3, pointRadius: 0, tension: 0.1, data: [] }] },
@@ -230,20 +239,44 @@
             chartM = new Chart(document.getElementById('monthlyChart'), {
                 type: 'bar',
                 data: { labels: [], datasets: [{ data: [], borderRadius: 6 }] },
-                options: { ...commonOptions, plugins: { legend: false }, scales: { x: { display: true, ticks: { color: '#94a3b8' } }, y: { position: 'right', ticks: { callback: v => v + '%' } } } }
+                options: { 
+                    ...commonOptions, 
+                    scales: { 
+                        x: { ticks: { color: '#94a3b8' } }, 
+                        y: { position: 'right', ticks: { callback: v => v + '%' } } 
+                    } 
+                }
             });
 
+            // БОКОВАЯ ПАНЕЛЬ (Assets Meta) с исправлением вылета за границы
             const side = document.getElementById('individual-charts');
             Object.keys(data).forEach((k, i) => {
                 const card = document.createElement('div');
                 card.className = 'glass-card p-4 h-24 flex items-center gap-4 hover:border-white/20 transition-colors cursor-default';
-                card.innerHTML = `<div class="flex flex-col min-w-[70px]"><span class="text-[11px] text-white font-black uppercase tracking-tighter">${k}</span></div><div class="flex-grow h-12"><canvas id="s-${k}"></canvas></div>`;
+                card.innerHTML = `<div class="flex flex-col min-w-[70px]"><span class="text-[11px] text-white font-black uppercase tracking-tighter">${k}</span></div><div class="flex-grow h-12 relative"><canvas id="s-${k}"></canvas></div>`;
                 side.appendChild(card);
+                
                 let s = 0;
                 new Chart(document.getElementById(`s-${k}`), {
                     type: 'line', 
-                    data: { labels: labels, datasets: [{ data: data[k].map(v => s+=v), borderColor: colors[i % colors.length], borderWidth: 2, pointRadius: 0, tension: 0.3 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: false }, scales: { x: { display: false }, y: { display: false } } }
+                    data: { 
+                        labels: labels, 
+                        datasets: [{ 
+                            data: data[k].map(v => s+=v), 
+                            borderColor: colors[i % colors.length], 
+                            borderWidth: 2, 
+                            pointRadius: 0, 
+                            tension: 0.3,
+                            clip: 5 // Фикс: не дает линии выходить за пределы холста
+                        }] 
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        plugins: { legend: false },
+                        layout: { padding: { right: 5, left: 2, top: 5, bottom: 5 } }, // Внутренний отступ холста
+                        scales: { x: { display: false }, y: { display: false } } 
+                    }
                 });
             });
             
