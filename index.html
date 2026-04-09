@@ -51,38 +51,34 @@
             margin-bottom: 4px; display: block;
         }
 
-        .chart-section { padding: 24px; width: 100%; }
+        /* Настройка секций графиков - увеличил внутренние отступы */
+        .chart-section { padding: 32px; width: 100%; }
         
         @media (min-width: 1024px) {
             .main-layout {
                 display: grid;
-                grid-template-columns: 320px 1fr; /* Фиксированная ширина левой колонки */
-                gap: 24px;
-                align-items: start; /* Не дает колонкам растягиваться принудительно */
+                grid-template-columns: 400px 1fr; /* Увеличил ширину левой части */
+                gap: 16px; /* Уменьшил расстояние между колонками */
+                align-items: stretch;
             }
             
             .sidebar {
-                position: sticky;
-                top: 24px;
                 display: flex;
                 flex-direction: column;
-                /* Высота сайдбара будет равна высоте контентной части */
-                height: 100%; 
             }
 
             #individual-charts {
                 display: grid;
                 grid-template-columns: 1fr;
-                gap: 12px;
-                /* Это заставит карточки заполнять пространство, но не вылезать */
+                gap: 8px; /* Максимально плотное прилегание карточек */
                 flex-grow: 1; 
             }
         }
     </style>
 </head>
-<body class="p-2 sm:p-4 lg:p-6">
+<body class="p-2 sm:p-4">
 
-    <header class="w-full flex flex-col lg:flex-row justify-between items-center gap-6 mb-6 p-6 glass-card">
+    <header class="w-full flex flex-col lg:flex-row justify-between items-center gap-6 mb-4 p-6 glass-card">
         <div class="flex items-center gap-6 w-full lg:w-auto justify-between lg:justify-start">
             <div>
                 <h1 class="text-2xl font-black tracking-tighter text-white uppercase leading-none">ROMAN ANKUDINOV</h1>
@@ -122,42 +118,42 @@
 
     <div class="main-layout w-full">
         <aside class="sidebar">
-            <h2 class="text-xs font-black text-slate-500 uppercase tracking-widest px-2 flex justify-between items-center mb-4">
+            <h2 class="text-xs font-black text-slate-500 uppercase tracking-widest px-2 flex justify-between items-center mb-3">
                 <span>Assets Meta</span>
                 <span class="h-[1px] flex-grow ml-4 bg-white/10"></span>
             </h2>
             <div id="individual-charts"></div>
         </aside>
 
-        <main class="content-area space-y-6">
+        <main class="content-area space-y-4">
             <section class="glass-card chart-section">
                 <div class="flex justify-between items-center mb-6">
                     <div>
-                        <h3 class="text-lg font-black text-white uppercase tracking-tight">Efficiency (R)</h3>
+                        <h3 class="text-xl font-black text-white uppercase tracking-tight">Efficiency (R)</h3>
                         <p class="text-xs text-slate-500 uppercase">Суммарный результат в единицах риска</p>
                     </div>
-                    <div id="rTotal" class="pnl-numbers text-blue-400 font-bold text-xl bg-blue-500/10 px-6 py-2 rounded-xl border border-blue-500/20">0 R</div>
+                    <div id="rTotal" class="pnl-numbers text-blue-400 font-bold text-2xl bg-blue-500/10 px-8 py-3 rounded-xl border border-blue-500/20">0 R</div>
                 </div>
-                <div class="h-[350px] w-full"><canvas id="simpleChart"></canvas></div>
+                <div class="h-[450px] w-full"><canvas id="simpleChart"></canvas></div>
             </section>
 
             <section class="glass-card chart-section border-t-2 border-t-emerald-600/50">
                 <div class="flex justify-between items-center mb-6">
                     <div>
-                        <h3 class="text-lg font-black text-white uppercase tracking-tight text-emerald-400">Growth ($)</h3>
+                        <h3 class="text-xl font-black text-white uppercase tracking-tight text-emerald-400">Growth ($)</h3>
                         <p class="text-xs text-slate-500 uppercase">Модель сложного процента</p>
                     </div>
-                    <div id="roiPct" class="pnl-numbers text-emerald-400 font-bold text-xl bg-emerald-500/10 px-6 py-2 rounded-xl border border-emerald-500/20">+0% ROI</div>
+                    <div id="roiPct" class="pnl-numbers text-emerald-400 font-bold text-2xl bg-emerald-500/10 px-8 py-3 rounded-xl border border-emerald-500/20">+0% ROI</div>
                 </div>
-                <div class="h-[350px] w-full"><canvas id="compoundChart"></canvas></div>
+                <div class="h-[450px] w-full"><canvas id="compoundChart"></canvas></div>
             </section>
 
             <section class="glass-card chart-section border-t-2 border-t-slate-700">
                 <div class="mb-6">
-                    <h3 class="text-lg font-black text-white uppercase tracking-tight">Monthly Profitability</h3>
+                    <h3 class="text-xl font-black text-white uppercase tracking-tight">Monthly Profitability</h3>
                     <p class="text-xs text-slate-500 uppercase">Доходность в % по месяцам</p>
                 </div>
-                <div class="h-[280px] w-full"><canvas id="monthlyChart"></canvas></div>
+                <div class="h-[350px] w-full"><canvas id="monthlyChart"></canvas></div>
             </section>
         </main>
     </div>
@@ -243,9 +239,10 @@
             const side = document.getElementById('individual-charts');
             Object.keys(data).forEach((k, i) => {
                 const card = document.createElement('div');
-                card.className = 'glass-card p-3 flex items-center gap-4 hover:border-white/20 transition-colors cursor-default';
-                card.style.height = '72px'; // Фиксированная высота карточки
-                card.innerHTML = `<div class="flex flex-col min-w-[60px]"><span class="text-[10px] text-white font-black uppercase tracking-tighter">${k}</span></div><div class="flex-grow h-full relative"><canvas id="s-${k}"></canvas></div>`;
+                card.className = 'glass-card p-4 flex items-center gap-4 hover:border-white/20 transition-colors cursor-default flex-grow';
+                // Сделал мини-карточки выше (min-height: 85px) для наглядности
+                card.style.minHeight = '85px'; 
+                card.innerHTML = `<div class="flex flex-col min-w-[70px]"><span class="text-xs text-white font-black uppercase tracking-tighter">${k}</span></div><div class="flex-grow h-full relative"><canvas id="s-${k}"></canvas></div>`;
                 side.appendChild(card);
                 let s = 0;
                 new Chart(document.getElementById(`s-${k}`), {
