@@ -53,26 +53,29 @@
 
         .chart-section { padding: 24px; width: 100%; }
         
-        /* Кастомная сетка для выравнивания краев */
         @media (min-width: 1024px) {
             .main-layout {
-                display: flex;
-                align-items: stretch; /* Растягивает лево и право до одной высоты */
+                display: grid;
+                grid-template-columns: 320px 1fr; /* Фиксированная ширина левой колонки */
                 gap: 24px;
+                align-items: start; /* Не дает колонкам растягиваться принудительно */
             }
+            
             .sidebar {
-                width: 25%; /* Левая панель шире */
+                position: sticky;
+                top: 24px;
                 display: flex;
                 flex-direction: column;
+                /* Высота сайдбара будет равна высоте контентной части */
+                height: 100%; 
             }
-            .content-area {
-                width: 75%;
-            }
+
             #individual-charts {
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between; /* Распределяет карточки по всей высоте */
-                height: 100%;
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 12px;
+                /* Это заставит карточки заполнять пространство, но не вылезать */
+                flex-grow: 1; 
             }
         }
     </style>
@@ -118,14 +121,12 @@
     </header>
 
     <div class="main-layout w-full">
-        
-        <aside class="sidebar space-y-4">
-            <h2 class="text-xs font-black text-slate-500 uppercase tracking-widest px-2 flex justify-between items-center">
+        <aside class="sidebar">
+            <h2 class="text-xs font-black text-slate-500 uppercase tracking-widest px-2 flex justify-between items-center mb-4">
                 <span>Assets Meta</span>
                 <span class="h-[1px] flex-grow ml-4 bg-white/10"></span>
             </h2>
-            <div id="individual-charts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 flex-grow">
-                </div>
+            <div id="individual-charts"></div>
         </aside>
 
         <main class="content-area space-y-6">
@@ -137,7 +138,7 @@
                     </div>
                     <div id="rTotal" class="pnl-numbers text-blue-400 font-bold text-xl bg-blue-500/10 px-6 py-2 rounded-xl border border-blue-500/20">0 R</div>
                 </div>
-                <div class="h-[380px] w-full"><canvas id="simpleChart"></canvas></div>
+                <div class="h-[350px] w-full"><canvas id="simpleChart"></canvas></div>
             </section>
 
             <section class="glass-card chart-section border-t-2 border-t-emerald-600/50">
@@ -148,7 +149,7 @@
                     </div>
                     <div id="roiPct" class="pnl-numbers text-emerald-400 font-bold text-xl bg-emerald-500/10 px-6 py-2 rounded-xl border border-emerald-500/20">+0% ROI</div>
                 </div>
-                <div class="h-[380px] w-full"><canvas id="compoundChart"></canvas></div>
+                <div class="h-[350px] w-full"><canvas id="compoundChart"></canvas></div>
             </section>
 
             <section class="glass-card chart-section border-t-2 border-t-slate-700">
@@ -156,7 +157,7 @@
                     <h3 class="text-lg font-black text-white uppercase tracking-tight">Monthly Profitability</h3>
                     <p class="text-xs text-slate-500 uppercase">Доходность в % по месяцам</p>
                 </div>
-                <div class="h-[300px] w-full"><canvas id="monthlyChart"></canvas></div>
+                <div class="h-[280px] w-full"><canvas id="monthlyChart"></canvas></div>
             </section>
         </main>
     </div>
@@ -242,9 +243,9 @@
             const side = document.getElementById('individual-charts');
             Object.keys(data).forEach((k, i) => {
                 const card = document.createElement('div');
-                // Карточки теперь имеют flex-grow для равномерного заполнения высоты
-                card.className = 'glass-card p-3 flex-grow flex items-center gap-4 hover:border-white/20 transition-colors cursor-default overflow-hidden';
-                card.innerHTML = `<div class="flex flex-col min-w-[60px]"><span class="text-[10px] text-white font-black uppercase tracking-tighter">${k}</span></div><div class="flex-grow h-full relative min-h-[40px]"><canvas id="s-${k}"></canvas></div>`;
+                card.className = 'glass-card p-3 flex items-center gap-4 hover:border-white/20 transition-colors cursor-default';
+                card.style.height = '72px'; // Фиксированная высота карточки
+                card.innerHTML = `<div class="flex flex-col min-w-[60px]"><span class="text-[10px] text-white font-black uppercase tracking-tighter">${k}</span></div><div class="flex-grow h-full relative"><canvas id="s-${k}"></canvas></div>`;
                 side.appendChild(card);
                 let s = 0;
                 new Chart(document.getElementById(`s-${k}`), {
