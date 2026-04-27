@@ -10,19 +10,42 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;900&display=swap');
         :root { --bg: #020617; --card: #0f172a; --accent: #3b82f6; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: #f1f5f9; margin: 0; padding: 0; overflow-x: hidden; }
-        .glass-card { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); overflow: hidden; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: #f1f5f9; margin: 0; padding: 0; overflow-x: hidden; min-height: 100vh; }
+        .glass-card { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); }
         .pnl-numbers { font-family: 'JetBrains Mono', monospace; }
         input { background: #1e293b; border: 1px solid #334155; color: #ffffff; padding: 0 12px; border-radius: 8px; font-weight: 700; width: 100%; height: 42px; outline: none; }
         label { color: #94a3b8; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; display: block; }
-        .chart-section { padding: 32px; width: 100%; }
-        @media (min-width: 1024px) {
-            .main-layout { display: grid; grid-template-columns: 350px 1fr; gap: 16px; align-items: stretch; }
-            #individual-charts { display: grid; grid-template-columns: 1fr; gap: 8px; }
+        
+        /* Сетка */
+        .main-layout { 
+            display: grid; 
+            grid-template-columns: 450px 1fr; /* Увеличил ширину левой колонки до 450px */
+            gap: 16px; 
+            min-height: calc(100vh - 160px); 
+            align-items: stretch;
         }
+
+        /* Левая колонка теперь флекс-контейнер на всю высоту */
+        #individual-charts { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            height: 100%; 
+        }
+
+        /* Карточки активов растягиваются равномерно */
+        .asset-card { 
+            flex: 1; 
+            display: flex; 
+            align-items: center; 
+            padding: 1rem 1.5rem;
+            min-height: 100px; 
+        }
+
+        .chart-section { padding: 24px; }
     </style>
 </head>
-<body class="p-2 sm:p-4">
+<body class="p-4">
     <header class="w-full flex flex-col lg:flex-row justify-between items-center gap-6 mb-4 p-6 glass-card">
         <div class="flex items-center gap-6 w-full lg:w-auto justify-between lg:justify-start">
             <div>
@@ -60,55 +83,36 @@
         </div>
     </header>
 
-    <div class="main-layout w-full">
-        <aside class="sidebar">
-            <h2 class="text-xs font-black text-slate-500 uppercase tracking-widest px-2 flex justify-between items-center mb-3">
-                <span>Assets Meta</span>
-                <span class="h-[1px] flex-grow ml-4 bg-white/10"></span>
-            </h2>
-            <div id="individual-charts"></div>
-        </aside>
+    <div class="main-layout">
+        <aside id="individual-charts"></aside>
 
-        <main class="content-area space-y-4">
-            <section class="glass-card chart-section">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <h3 class="text-xl font-black text-white uppercase tracking-tight">Efficiency (R)</h3>
-                        <p class="text-xs text-slate-500 uppercase">Суммарный результат в единицах риска</p>
-                    </div>
-                    <div id="rTotal" class="pnl-numbers text-blue-400 font-bold text-2xl bg-blue-500/10 px-8 py-3 rounded-xl border border-blue-500/20">0 R</div>
+        <main class="space-y-4 flex flex-col">
+            <section class="glass-card chart-section flex-1">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-black text-white uppercase tracking-tight">Efficiency (R)</h3>
+                    <div id="rTotal" class="pnl-numbers text-blue-400 font-bold text-xl bg-blue-500/10 px-6 py-2 rounded-lg border border-blue-500/20">0 R</div>
                 </div>
-                <div class="h-[450px] w-full"><canvas id="simpleChart"></canvas></div>
+                <div class="h-[300px] w-full"><canvas id="simpleChart"></canvas></div>
             </section>
 
-            <section class="glass-card chart-section border-t-2 border-t-emerald-600/50">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <h3 class="text-xl font-black text-white uppercase tracking-tight text-emerald-400">Growth ($)</h3>
-                        <p class="text-xs text-slate-500 uppercase">Модель сложного процента</p>
-                    </div>
-                    <div id="roiPct" class="pnl-numbers text-emerald-400 font-bold text-2xl bg-emerald-500/10 px-8 py-3 rounded-xl border border-emerald-500/20">+0% ROI</div>
+            <section class="glass-card chart-section flex-1 border-t-2 border-t-emerald-600/50">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-black text-emerald-400 uppercase tracking-tight">Growth ($)</h3>
+                    <div id="roiPct" class="pnl-numbers text-emerald-400 font-bold text-xl bg-emerald-500/10 px-6 py-2 rounded-lg border border-emerald-500/20">+0% ROI</div>
                 </div>
-                <div class="h-[450px] w-full"><canvas id="compoundChart"></canvas></div>
+                <div class="h-[300px] w-full"><canvas id="compoundChart"></canvas></div>
             </section>
 
             <section class="glass-card chart-section border-t-2 border-t-slate-700">
-                <div class="mb-6">
-                    <h3 class="text-xl font-black text-white uppercase tracking-tight">Monthly Profitability</h3>
-                    <p class="text-xs text-slate-500 uppercase">Доходность в % по месяцам</p>
-                </div>
-                <div class="h-[350px] w-full"><canvas id="monthlyChart"></canvas></div>
+                <h3 class="text-lg font-black text-white uppercase tracking-tight mb-4">Monthly Profitability</h3>
+                <div class="h-[250px] w-full"><canvas id="monthlyChart"></canvas></div>
             </section>
         </main>
     </div>
 
     <script>
-        // Ждем полной загрузки страницы и данных
         window.addEventListener('load', () => {
-            if (typeof marketData === 'undefined') {
-                alert("Файл data.js не найден или содержит ошибку. Убедитесь, что он лежит в той же папке.");
-                return;
-            }
+            if (typeof marketData === 'undefined') return;
 
             const dataSet = marketData;
             const labels = dataSet.map(d => d.date.toUpperCase());
@@ -133,14 +137,12 @@
                     assets.forEach(asset => {
                         const val = entry[asset] || 0;
                         dayR += val;
-                        // Для сайдбара
                         const lastTotal = assetTotals[asset].length > 0 ? assetTotals[asset][assetTotals[asset].length-1] : 0;
                         assetTotals[asset].push(lastTotal + val);
                     });
 
                     sumR += dayR;
                     sData.push(sumR.toFixed(2));
-
                     bal = bal * (1 + (dayR * risk));
                     cData.push(bal.toFixed(2));
 
@@ -152,32 +154,21 @@
                     monthlyStats[month] = (monthlyStats[month] || 0) + (dayR * risk * 100);
                 });
 
-                // Текстовые данные
                 document.getElementById('finalBalance').innerText = '$ ' + Math.round(bal).toLocaleString();
                 document.getElementById('roiPct').innerText = '+' + Math.round(((bal-dep)/dep)*100).toLocaleString() + '% ROI';
                 document.getElementById('maxDD').innerText = Math.round(mdd) + '%';
                 document.getElementById('rTotal').innerText = sumR.toFixed(1) + ' R';
                 
-                // Главные графики
                 chartS.data.datasets[0].data = sData; 
                 chartC.data.datasets[0].data = cData;
-                
                 chartM.data.labels = Object.keys(monthlyStats).map(m => m.toUpperCase());
                 chartM.data.datasets[0].data = Object.values(monthlyStats).map(v => v.toFixed(1));
                 chartM.data.datasets[0].backgroundColor = Object.values(monthlyStats).map(v => v >= 0 ? '#10b981' : '#ef4444');
                 
                 chartS.update(); chartC.update(); chartM.update();
-
-                // Сайдбар графики
-                assets.forEach(asset => {
-                    if (sideCharts[asset]) {
-                        sideCharts[asset].data.datasets[0].data = assetTotals[asset];
-                        sideCharts[asset].update();
-                    }
-                });
+                assets.forEach(asset => { if (sideCharts[asset]) { sideCharts[asset].data.datasets[0].data = assetTotals[asset]; sideCharts[asset].update(); } });
             }
 
-            // Инициализация графиков
             const commonOptions = {
                 responsive: true, maintainAspectRatio: false,
                 plugins: { legend: false },
@@ -205,13 +196,17 @@
                 options: { ...commonOptions, scales: { x: { ticks: { color: '#94a3b8' } }, y: { position: 'right', ticks: { callback: v => v + '%' } } } }
             });
 
-            // Сайдбар
             const side = document.getElementById('individual-charts');
             assets.forEach((asset, i) => {
                 const card = document.createElement('div');
-                card.className = 'glass-card p-4 flex items-center gap-4 hover:border-white/20 transition-colors cursor-default';
-                card.style.minHeight = '85px'; 
-                card.innerHTML = `<div class="flex flex-col min-w-[70px]"><span class="text-xs text-white font-black uppercase tracking-tighter">${asset}</span></div><div class="flex-grow h-12 relative"><canvas id="s-${asset}"></canvas></div>`;
+                card.className = 'glass-card asset-card gap-6 hover:border-white/20 transition-colors cursor-default';
+                card.innerHTML = `
+                    <div class="flex flex-col min-w-[80px]">
+                        <span class="text-sm text-white font-black uppercase tracking-widest">${asset}</span>
+                    </div>
+                    <div class="flex-grow h-16 relative">
+                        <canvas id="s-${asset}"></canvas>
+                    </div>`;
                 side.appendChild(card);
 
                 sideCharts[asset] = new Chart(document.getElementById(`s-${asset}`), {
