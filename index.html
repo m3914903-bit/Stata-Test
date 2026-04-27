@@ -9,67 +9,20 @@
     <script src="data.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;900&display=swap');
-        
         :root { --bg: #020617; --card: #0f172a; --accent: #3b82f6; }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg); 
-            color: #f1f5f9; 
-            margin: 0; padding: 0;
-            overflow-x: hidden;
-        }
-
-        .glass-card { 
-            background: var(--card); 
-            border: 1px solid rgba(255,255,255,0.05); 
-            border-radius: 12px; 
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: #f1f5f9; margin: 0; padding: 0; overflow-x: hidden; }
+        .glass-card { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); overflow: hidden; }
         .pnl-numbers { font-family: 'JetBrains Mono', monospace; }
-        
-        input { 
-            background: #1e293b; 
-            border: 1px solid #334155; 
-            color: #ffffff; 
-            padding: 0 12px; 
-            border-radius: 8px; 
-            font-weight: 700;
-            width: 100%;
-            height: 42px;
-            outline: none;
-        }
-
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
-        label { 
-            color: #94a3b8; font-size: 10px; font-weight: 800; 
-            text-transform: uppercase; letter-spacing: 0.1em;
-            margin-bottom: 4px; display: block;
-        }
-
+        input { background: #1e293b; border: 1px solid #334155; color: #ffffff; padding: 0 12px; border-radius: 8px; font-weight: 700; width: 100%; height: 42px; outline: none; }
+        label { color: #94a3b8; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; display: block; }
         .chart-section { padding: 32px; width: 100%; }
-        
         @media (min-width: 1024px) {
-            .main-layout {
-                display: grid;
-                grid-template-columns: 350px 1fr;
-                gap: 16px;
-                align-items: stretch;
-            }
-            #individual-charts {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
+            .main-layout { display: grid; grid-template-columns: 350px 1fr; gap: 16px; align-items: stretch; }
+            #individual-charts { display: grid; grid-template-columns: 1fr; gap: 8px; }
         }
     </style>
 </head>
 <body class="p-2 sm:p-4">
-
     <header class="w-full flex flex-col lg:flex-row justify-between items-center gap-6 mb-4 p-6 glass-card">
         <div class="flex items-center gap-6 w-full lg:w-auto justify-between lg:justify-start">
             <div>
@@ -82,7 +35,6 @@
                 <span id="endDate" class="text-xs text-blue-400 font-bold pnl-numbers">-- ---</span>
             </div>
         </div>
-        
         <div class="flex flex-wrap justify-center lg:justify-end gap-8 items-center w-full lg:w-auto">
             <div class="flex gap-4 items-end">
                 <div class="flex flex-col w-32">
@@ -151,69 +103,81 @@
     </div>
 
     <script>
-        // marketData приходит из data.js
-        const dataSet = marketData; 
-        const labels = dataSet.map(d => d.date.toUpperCase());
-        
-        // Список всех ключей активов (все кроме даты)
-        const assets = Object.keys(dataSet[0]).filter(k => k !== 'date');
-        const colors = ['#60a5fa', '#34d399', '#fbbf24', '#f87171', '#a78bfa', '#f472b6', '#22d3ee', '#fb923c', '#c084fc', '#2dd4bf', '#818cf8'];
+        // Ждем полной загрузки страницы и данных
+        window.addEventListener('load', () => {
+            if (typeof marketData === 'undefined') {
+                alert("Файл data.js не найден или содержит ошибку. Убедитесь, что он лежит в той же папке.");
+                return;
+            }
 
-        let chartS, chartC, chartM;
+            const dataSet = marketData;
+            const labels = dataSet.map(d => d.date.toUpperCase());
+            const assets = Object.keys(dataSet[0]).filter(k => k !== 'date');
+            const colors = ['#60a5fa', '#34d399', '#fbbf24', '#f87171', '#a78bfa', '#f472b6', '#22d3ee', '#fb923c', '#c084fc', '#2dd4bf', '#818cf8'];
 
-        function update() {
-            const dep = parseFloat(document.getElementById('depositInput').value) || 0;
-            const risk = (parseFloat(document.getElementById('riskInput').value) || 0) / 100;
-            
-            let sumR = 0, bal = dep, peak = dep, mdd = 0;
-            const sData = [], cData = [];
-            const monthlyStats = {};
+            let chartS, chartC, chartM;
+            let sideCharts = {};
 
-            dataSet.forEach((entry) => {
-                // Считаем суммарное R за этот день по всем активам
-                let dayR = 0;
-                assets.forEach(asset => {
-                    dayR += entry[asset] || 0;
+            function update() {
+                const dep = parseFloat(document.getElementById('depositInput').value) || 0;
+                const risk = (parseFloat(document.getElementById('riskInput').value) || 0) / 100;
+                
+                let sumR = 0, bal = dep, peak = dep, mdd = 0;
+                const sData = [], cData = [];
+                const monthlyStats = {};
+                const assetTotals = {};
+                assets.forEach(a => assetTotals[a] = []);
+
+                dataSet.forEach((entry) => {
+                    let dayR = 0;
+                    assets.forEach(asset => {
+                        const val = entry[asset] || 0;
+                        dayR += val;
+                        // Для сайдбара
+                        const lastTotal = assetTotals[asset].length > 0 ? assetTotals[asset][assetTotals[asset].length-1] : 0;
+                        assetTotals[asset].push(lastTotal + val);
+                    });
+
+                    sumR += dayR;
+                    sData.push(sumR.toFixed(2));
+
+                    bal = bal * (1 + (dayR * risk));
+                    cData.push(bal.toFixed(2));
+
+                    if (bal > peak) peak = bal;
+                    const dd = peak === 0 ? 0 : ((peak - bal) / peak) * 100;
+                    if (dd > mdd) mdd = dd;
+
+                    const month = entry.date.split(' ')[1];
+                    monthlyStats[month] = (monthlyStats[month] || 0) + (dayR * risk * 100);
                 });
 
-                sumR += dayR;
-                sData.push(sumR.toFixed(2));
+                // Текстовые данные
+                document.getElementById('finalBalance').innerText = '$ ' + Math.round(bal).toLocaleString();
+                document.getElementById('roiPct').innerText = '+' + Math.round(((bal-dep)/dep)*100).toLocaleString() + '% ROI';
+                document.getElementById('maxDD').innerText = Math.round(mdd) + '%';
+                document.getElementById('rTotal').innerText = sumR.toFixed(1) + ' R';
+                
+                // Главные графики
+                chartS.data.datasets[0].data = sData; 
+                chartC.data.datasets[0].data = cData;
+                
+                chartM.data.labels = Object.keys(monthlyStats).map(m => m.toUpperCase());
+                chartM.data.datasets[0].data = Object.values(monthlyStats).map(v => v.toFixed(1));
+                chartM.data.datasets[0].backgroundColor = Object.values(monthlyStats).map(v => v >= 0 ? '#10b981' : '#ef4444');
+                
+                chartS.update(); chartC.update(); chartM.update();
 
-                // Сложный процент
-                bal = bal * (1 + (dayR * risk));
-                cData.push(bal.toFixed(2));
+                // Сайдбар графики
+                assets.forEach(asset => {
+                    if (sideCharts[asset]) {
+                        sideCharts[asset].data.datasets[0].data = assetTotals[asset];
+                        sideCharts[asset].update();
+                    }
+                });
+            }
 
-                // Просадка
-                if (bal > peak) peak = bal;
-                const dd = ((peak - bal) / peak) * 100;
-                if (dd > mdd) mdd = dd;
-
-                // Месячная статистика
-                const month = entry.date.split(' ')[1]; // "jul", "aug" и т.д.
-                monthlyStats[month] = (monthlyStats[month] || 0) + (dayR * risk * 100);
-            });
-
-            // Обновление интерфейса
-            document.getElementById('finalBalance').innerText = '$ ' + Math.round(bal).toLocaleString();
-            document.getElementById('roiPct').innerText = '+' + Math.round(((bal-dep)/dep)*100).toLocaleString() + '% ROI';
-            document.getElementById('maxDD').innerText = Math.round(mdd) + '%';
-            document.getElementById('rTotal').innerText = sumR.toFixed(1) + ' R';
-            
-            // Обновление графиков
-            chartS.data.datasets[0].data = sData; 
-            chartC.data.datasets[0].data = cData;
-            
-            chartM.data.labels = Object.keys(monthlyStats).map(m => m.toUpperCase());
-            chartM.data.datasets[0].data = Object.values(monthlyStats).map(v => v.toFixed(1));
-            chartM.data.datasets[0].backgroundColor = Object.values(monthlyStats).map(v => v >= 0 ? '#10b981' : '#ef4444');
-            
-            chartS.update(); chartC.update(); chartM.update();
-        }
-
-        function init() {
-            document.getElementById('startDate').innerText = labels[0];
-            document.getElementById('endDate').innerText = labels[labels.length-1];
-            
+            // Инициализация графиков
             const commonOptions = {
                 responsive: true, maintainAspectRatio: false,
                 plugins: { legend: false },
@@ -222,6 +186,9 @@
                     y: { position: 'right', grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#94a3b8', font: { size: 11 } } }
                 }
             };
+
+            document.getElementById('startDate').innerText = labels[0];
+            document.getElementById('endDate').innerText = labels[labels.length-1];
 
             chartS = new Chart(document.getElementById('simpleChart'), {
                 type: 'line', data: { labels: labels, datasets: [{ borderColor: '#3b82f6', borderWidth: 3, pointRadius: 0, tension: 0.1, data: [] }] },
@@ -238,27 +205,18 @@
                 options: { ...commonOptions, scales: { x: { ticks: { color: '#94a3b8' } }, y: { position: 'right', ticks: { callback: v => v + '%' } } } }
             });
 
-            // Создание мини-графиков активов в сайдбаре
+            // Сайдбар
             const side = document.getElementById('individual-charts');
             assets.forEach((asset, i) => {
                 const card = document.createElement('div');
                 card.className = 'glass-card p-4 flex items-center gap-4 hover:border-white/20 transition-colors cursor-default';
                 card.style.minHeight = '85px'; 
-                card.innerHTML = `
-                    <div class="flex flex-col min-w-[70px]">
-                        <span class="text-xs text-white font-black uppercase tracking-tighter">${asset}</span>
-                    </div>
-                    <div class="flex-grow h-12 relative">
-                        <canvas id="s-${asset}"></canvas>
-                    </div>`;
+                card.innerHTML = `<div class="flex flex-col min-w-[70px]"><span class="text-xs text-white font-black uppercase tracking-tighter">${asset}</span></div><div class="flex-grow h-12 relative"><canvas id="s-${asset}"></canvas></div>`;
                 side.appendChild(card);
 
-                let cumulative = 0;
-                const assetData = dataSet.map(d => cumulative += (d[asset] || 0));
-
-                new Chart(document.getElementById(`s-${asset}`), {
+                sideCharts[asset] = new Chart(document.getElementById(`s-${asset}`), {
                     type: 'line', 
-                    data: { labels: labels, datasets: [{ data: assetData, borderColor: colors[i % colors.length], borderWidth: 2, pointRadius: 0, tension: 0.3 }] },
+                    data: { labels: labels, datasets: [{ data: [], borderColor: colors[i % colors.length], borderWidth: 2, pointRadius: 0, tension: 0.3 }] },
                     options: { 
                         responsive: true, maintainAspectRatio: false, plugins: { legend: false },
                         scales: { x: { display: false }, y: { display: false } } 
@@ -268,9 +226,7 @@
 
             update();
             ['depositInput', 'riskInput'].forEach(id => document.getElementById(id).addEventListener('input', update));
-        }
-
-        window.onload = init;
+        });
     </script>
 </body>
 </html>
