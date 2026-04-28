@@ -102,13 +102,13 @@ const marketData = [
   { date: "27 mar", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 },
   { date: "30 mar", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 1, eth: 0, gold: -1, silver: 0, wti: 0, sp500: 1 },
   { date: "31 mar", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 },
-  { date: "01 apr", eur: 2, gbp: -1, aud: 2, cad: -1, chf: -1, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 }, // Итого: 1 R
-  { date: "02 apr", eur: 0, gbp: 2, aud: 0, cad: 0, chf: -0.5, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 }, // Итого: 1.5 R
-  { date: "06 apr", eur: 2, gbp: 0, aud: 0, cad: 0, chf: -0.5, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 }, // Итого: 1.5 R
-  { date: "07 apr", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 2, eth: 2, gold: 0, silver: 2, wti: -1, sp500: 0 }, // Итого: 5 R
-  { date: "08 apr", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 2, jpy: 0, btc: 0, eth: 0, gold: 2, silver: 0, wti: 0, sp500: 0 }, // Итого: 4 R
+  { date: "01 apr", eur: -1, gbp: 0, aud: 2, cad: -1, chf: -1, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 }, // Итого: 1 R
+  { date: "02 apr", eur: 2, gbp: -1, aud: 0, cad: 0, chf: -0.5, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 }, // Итого: 1.5 R
+  { date: "06 apr", eur: 0, gbp: -0.5, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 }, // Итого: 1.5 R
+  { date: "07 apr", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 2, jpy: 0, btc: 2, eth: 0, gold: 0, silver: 2, wti: -1, sp500: 0 }, // Итого: 5 R
+  { date: "08 apr", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 2, gold: 2, silver: 0, wti: 0, sp500: 0 }, // Итого: 4 R
   { date: "14 apr", eur: 2, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 }, // Итого: 2 R
   { date: "16 apr", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 2, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 2, wti: 0, sp500: 0 }, // Итого: 4 R
-  { date: "17 apr", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 2, jpy: 2, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 }, // Итого: 4 R
+  { date: "17 apr", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 2, jpy: 0, btc: 2, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 }, // Итого: 4 R
   { date: "22 apr", eur: 2, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 2, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 }  // Итого: 4 R
 ];
