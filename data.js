@@ -1,5 +1,5 @@
 const marketData = [
-  { date: "02 jul", eur: 0, gbp: 0, aud: 0, cad: 2, chf: 0, jpy: 2, btc: 0, eth: 0, gold: 2, silver: 0, wti: 0, sp500: 0 },
+  { date: "02 jul 25", eur: 0, gbp: 0, aud: 0, cad: 2, chf: 0, jpy: 2, btc: 0, eth: 0, gold: 2, silver: 0, wti: 0, sp500: 0 },
   { date: "04 jul", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 2, wti: 0, sp500: 0 },
   { date: "09 jul", eur: 0, gbp: 0, aud: 2, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 },
   { date: "10 jul", eur: 2, gbp: 0, aud: 2, cad: 2, chf: 2, jpy: 0, btc: 0, eth: 0, gold: 2, silver: 1, wti: 0, sp500: 0 },
