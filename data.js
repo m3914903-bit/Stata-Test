@@ -113,5 +113,6 @@ const marketData = [
   { date: "22 apr", eur: 2, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 2, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 }, // Итого: 4 R
   { date: "28 apr", eur: 0, gbp: 0, aud: 0, cad: -1, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 }, // Итого: -1 R
   { date: "30 apr", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 1, sp500: 0 }, // Итого: 1 R
-{ date: "01 may", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 2, silver: 0, wti: 0, sp500: 0 } // Итого: 2 R
+{ date: "01 may", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 2, silver: 0, wti: 0, sp500: 0 }, // Итого: 2 R
+  { date: "04 may", eur: -0.5, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 2, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 }, // Итого: 1.5 R
 ];
