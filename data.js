@@ -78,7 +78,7 @@ const marketData = [
   { date: "22 jan", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 4, btc: 1, eth: 0, gold: 2, silver: 2, wti: -1, sp500: -1 },
   { date: "28 jan", eur: 0, gbp: 0, aud: 0, cad: 1, chf: 0, jpy: 0, btc: -1, eth: -1, gold: 0, silver: 1, wti: 0, sp500: 0 },
   { date: "30 jan", eur: 2, gbp: 1, aud: 2, cad: -1, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: -1, sp500: 0 },
-  { date: "4 feb", eur: 0, gbp: 0, aud: 0, cad: -1, chf: 0, jpy: 0, btc: 2, eth: 0, gold: 2, silver: 0, wti: 0, sp500: 4 },
+  { date: "4 feb", eur: 0, gbp: 0, aud: 0, cad: 1, chf: 0, jpy: 0, btc: 2, eth: 0, gold: 2, silver: 0, wti: 0, sp500: 4 },
   { date: "10 feb", eur: -1, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: -1 },
   { date: "12 feb", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 2, eth: 0, gold: 2, silver: 0, wti: 0, sp500: 0 },
   { date: "18 feb", eur: 0, gbp: 0, aud: 2, cad: 0, chf: 0, jpy: 2, btc: 0, eth: 2, gold: 0, silver: 0, wti: 2, sp500: 0 },
