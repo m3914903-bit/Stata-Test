@@ -125,5 +125,8 @@ const marketData = [
   { date: "22 may", eur: 0, gbp: 2, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 },
   { date: "26 may", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: -1, gold: 0, silver: 0, wti: 0, sp500: 0 },
   { date: "27 may", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: -0.5, sp500: 0 },
-  { date: "29 may", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 2, sp500: 0 }
+  { date: "29 may", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 2, sp500: 0 },
+  { date: "01 jun", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: -1, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 },
+  { date: "03 jun", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: -1, wti: 0, sp500: 0 },
+  { date: "04 jun", eur: 0, gbp: 0, aud: 2, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 2, wti: 0, sp500: 0 },
 ];
