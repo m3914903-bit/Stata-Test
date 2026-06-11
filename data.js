@@ -129,4 +129,7 @@ const marketData = [
   { date: "01 jun", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: -1, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 },
   { date: "03 jun", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: -1, wti: 0, sp500: 0 },
   { date: "04 jun", eur: 0, gbp: 0, aud: 2, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 2, wti: 0, sp500: 0 },
+  { date: "08 jun", eur: 0, gbp: 0, aud: 0, cad: 0, chf: 0, jpy: 0, btc: -1, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 0 },
+  { date: "09 jun", eur: 0, gbp: -1, aud: 0, cad: 0, chf: 0, jpy: 0, btc: 0, eth: 0, gold: 0, silver: 0, wti: 0, sp500: 1 },
+  { date: "10 jun", eur: 0, gbp: 0, aud: 2, cad: 2, chf: 0, jpy: 0, btc: 0, eth: 2, gold: 0, silver: 0, wti: 0, sp500: 0 },
 ];
